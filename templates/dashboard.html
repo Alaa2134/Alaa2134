@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block heading %}لوحة التحكم{% endblock %}
+{% block subheading %}نظرة عامة على منصة نشر ريلز القرآن التلقائية{% endblock %}
+{% block content %}
+<div class="grid cols-4" id="stats">
+  <div class="card stat"><span class="label">إجمالي المنشور</span><span class="value gold" id="s-posted">—</span></div>
+  <div class="card stat"><span class="label">عدد الآيات</span><span class="value" id="s-verses">—</span></div>
+  <div class="card stat"><span class="label">القرّاء المفعّلون</span><span class="value" id="s-reciters">—</span></div>
+  <div class="card stat"><span class="label">حالة إنستجرام</span><span class="value sm" id="s-ig">—</span></div>
+</div>
+
+<div class="grid cols-2" style="margin-top:18px">
+  <div class="card">
+    <h3>التالي في الجدول</h3>
+    <div class="stat" style="gap:14px">
+      <div><span class="label">الآية القادمة</span><div class="value sm" id="s-nextref">—</div></div>
+      <div><span class="label">القارئ القادم</span><div class="value sm gold" id="s-nextrec">—</div></div>
+      <div class="muted" id="s-modes"></div>
+      <div class="btn-row">
+        <a class="btn btn-gold" href="/studio">توليد ومعاينة الآن</a>
+        <a class="btn btn-ghost" href="/settings">تعديل الجدولة</a>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>آخر الآيات المنشورة</h3>
+    <div id="recent" class="muted">لا يوجد بعد.</div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(async () => {
+  try {
+    const s = await API.get('/api/stats');
+    document.getElementById('s-posted').textContent = s.posted_count;
+    document.getElementById('s-verses').textContent = s.verse_count;
+    document.getElementById('s-reciters').textContent = s.reciter_count + ' / ' + s.total_reciters;
+    const ig = document.getElementById('s-ig');
+    ig.textContent = s.instagram_ready ? 'متصل ✓' : 'غير مهيأ';
+    ig.className = 'value sm ' + (s.instagram_ready ? 'gold' : '');
+    document.getElementById('s-nextref').textContent = s.next_reference;
+    document.getElementById('s-nextrec').textContent = s.next_reciter_name;
+    const modeMap = { sequential: 'بالترتيب', random: 'عشوائي', rotate: 'تدوير', fixed: 'ثابت' };
+    document.getElementById('s-modes').textContent =
+      `اختيار الآيات: ${modeMap[s.selection_mode]||s.selection_mode} • القرّاء: ${modeMap[s.reciter_mode]||s.reciter_mode}`;
+    if (s.recent_posted && s.recent_posted.length) {
+      document.getElementById('recent').innerHTML =
+        s.recent_posted.map(r => `<span class="pill pill-muted" style="margin:0 0 6px 6px">${r}</span>`).join('');
+    }
+  } catch (e) { toast('تعذّر تحميل الإحصائيات', 'err'); }
+})();
+</script>
+{% endblock %}

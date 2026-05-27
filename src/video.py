@@ -31,17 +31,21 @@ def pick_background():
     return random.choice(files) if files else None
 
 
-def build_reel(audio_path, text_png, gradient_png, out_path) -> str:
+def build_reel(audio_path, text_png, gradient_png, out_path,
+               background_mode="auto", tail_seconds=None) -> str:
     """Render an H.264/AAC 9:16 MP4 ready for Instagram Reels.
 
-    Uses a random background video from assets/backgrounds when available,
-    otherwise falls back to the gradient image.
+    background_mode:
+      auto     - use a random background video if any exist, else gradient
+      video    - same as auto (gradient fallback when none available)
+      gradient - always use the generated gradient
     """
     w, h = config.VIDEO_WIDTH, config.VIDEO_HEIGHT
     duration = probe_duration(audio_path)
-    total = round(duration + config.TAIL_SECONDS, 2)
+    tail = config.TAIL_SECONDS if tail_seconds is None else tail_seconds
+    total = round(duration + tail, 2)
 
-    background = pick_background()
+    background = None if background_mode == "gradient" else pick_background()
     cmd = ["ffmpeg", "-y"]
     if background:
         cmd += ["-stream_loop", "-1", "-i", background]

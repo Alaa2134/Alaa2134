@@ -20,8 +20,10 @@ GITHUB_REPOSITORY = os.environ.get("GITHUB_REPOSITORY", "").strip()  # "owner/re
 RELEASE_TAG = os.environ.get("RELEASE_TAG", "daily-reels").strip()
 
 # --- Quran content (Al Quran Cloud API editions) ---
-# Audio editions: ar.alafasy, ar.abdulbasitmurattal, ar.husary, ar.minshawi, ...
-AUDIO_EDITION = os.environ.get("AUDIO_EDITION", "ar.alafasy").strip()
+# A non-empty AUDIO_EDITION env var forces a specific reciter (used by the
+# manual workflow run); otherwise the reciter comes from data/settings.json.
+AUDIO_EDITION_OVERRIDE = os.environ.get("AUDIO_EDITION", "").strip()
+AUDIO_EDITION = AUDIO_EDITION_OVERRIDE or "ar.alafasy"
 API_BASE = os.environ.get("QURAN_API_BASE", "https://api.alquran.cloud/v1").strip()
 
 # --- Verse selection ---
@@ -58,3 +60,6 @@ OUTPUT_DIR = os.path.join(ROOT_DIR, "output")
 WORK_DIR = os.path.join(ROOT_DIR, "work")
 VERSES_FILE = os.path.join(DATA_DIR, "verses.json")
 STATE_FILE = os.path.join(DATA_DIR, "state.json")
+SETTINGS_FILE = os.path.join(DATA_DIR, "settings.json")
+RECITERS_FILE = os.path.join(DATA_DIR, "reciters.json")
+SURAHS_FILE = os.path.join(DATA_DIR, "surahs.json")

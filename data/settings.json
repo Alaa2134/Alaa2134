@@ -1,0 +1,27 @@
+{
+  "reciter_mode": "rotate",
+  "reciter": "ar.alafasy",
+  "reciter_pool": [
+    "ar.alafasy",
+    "ar.husary",
+    "ar.husarymujawwad",
+    "ar.minshawi",
+    "ar.abdulsamad",
+    "ar.abdurrahmaansudais",
+    "ar.saoodshuraym",
+    "ar.mahermuaiqly",
+    "ar.ahmedajamy",
+    "ar.shaatree",
+    "ar.hudhaify",
+    "ar.hanirifai",
+    "ar.muhammadayyoub",
+    "ar.muhammadjibreel",
+    "ar.abdullahbasfar",
+    "ar.ibrahimakhbar",
+    "ar.aymanswoaid"
+  ],
+  "selection_mode": "sequential",
+  "hashtags": "#قرآن #قران_كريم #تلاوة #اسلام #quran #islam #recitation #reels",
+  "tail_seconds": 1.5,
+  "background_mode": "gradient"
+}

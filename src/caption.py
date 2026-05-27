@@ -2,12 +2,13 @@
 from . import config
 
 
-def build_caption(verse: dict) -> str:
+def build_caption(verse: dict, hashtags: str | None = None) -> str:
+    tags = config.CAPTION_HASHTAGS if hashtags is None else hashtags
     parts = [
         verse["text"],
         "",
         f"﴿ {verse['surah_name']} : {verse['ayah_number']} ﴾",
     ]
-    if config.CAPTION_HASHTAGS:
-        parts += ["", config.CAPTION_HASHTAGS]
+    if tags:
+        parts += ["", tags]
     return "\n".join(parts)

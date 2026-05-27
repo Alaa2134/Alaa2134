@@ -1,0 +1,19 @@
+[
+  { "id": "ar.alafasy", "name": "مشاري العفاسي", "english": "Mishary Alafasy" },
+  { "id": "ar.husary", "name": "محمود خليل الحصري", "english": "Mahmoud Al-Husary" },
+  { "id": "ar.husarymujawwad", "name": "محمود خليل الحصري (المجوّد)", "english": "Al-Husary (Mujawwad)" },
+  { "id": "ar.minshawi", "name": "محمد صديق المنشاوي", "english": "Al-Minshawi" },
+  { "id": "ar.abdulsamad", "name": "عبد الباسط عبد الصمد", "english": "Abdul Basit Abdul Samad" },
+  { "id": "ar.abdurrahmaansudais", "name": "عبد الرحمن السديس", "english": "Abdurrahman As-Sudais" },
+  { "id": "ar.saoodshuraym", "name": "سعود الشريم", "english": "Saood Ash-Shuraim" },
+  { "id": "ar.mahermuaiqly", "name": "ماهر المعيقلي", "english": "Maher Al-Muaiqly" },
+  { "id": "ar.ahmedajamy", "name": "أحمد بن علي العجمي", "english": "Ahmed Al-Ajamy" },
+  { "id": "ar.shaatree", "name": "أبو بكر الشاطري", "english": "Abu Bakr Ash-Shaatree" },
+  { "id": "ar.hudhaify", "name": "علي بن عبد الرحمن الحذيفي", "english": "Ali Al-Hudhaify" },
+  { "id": "ar.hanirifai", "name": "هاني الرفاعي", "english": "Hani Ar-Rifai" },
+  { "id": "ar.muhammadayyoub", "name": "محمد أيوب", "english": "Muhammad Ayyoub" },
+  { "id": "ar.muhammadjibreel", "name": "محمد جبريل", "english": "Muhammad Jibreel" },
+  { "id": "ar.abdullahbasfar", "name": "عبد الله بصفر", "english": "Abdullah Basfar" },
+  { "id": "ar.ibrahimakhbar", "name": "إبراهيم الأخضر", "english": "Ibrahim Al-Akhdar" },
+  { "id": "ar.aymanswoaid", "name": "أيمن سويد", "english": "Ayman Sowaid" }
+]

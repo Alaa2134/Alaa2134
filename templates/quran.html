@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block heading %}المصحف{% endblock %}
+{% block subheading %}تصفّح السور الـ114 واختر آية لمعاينتها أو إضافتها للاستوديو{% endblock %}
+{% block content %}
+<div id="surah-view">
+  <input id="search" placeholder="ابحث عن سورة بالاسم…" style="margin-bottom:16px">
+  <div class="surah-list" id="surahs"></div>
+</div>
+
+<div id="ayah-view" style="display:none">
+  <div class="section-title">
+    <button class="btn btn-ghost" id="back">→ رجوع للسور</button>
+    <h2 id="surah-title" style="margin:0;font-family:Amiri,serif"></h2>
+  </div>
+  <div id="ayahs"><div class="loading-row"><span class="spinner"></span> جارٍ التحميل…</div></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let surahs = [];
+
+async function init() {
+  surahs = await API.get('/api/surahs');
+  renderSurahs(surahs);
+}
+function renderSurahs(list) {
+  document.getElementById('surahs').innerHTML = list.map(s => `
+    <div class="surah" data-n="${s.number}">
+      <div class="num">${s.number}</div>
+      <div><div class="nm">${s.name}</div><div class="en">${s.englishName} • ${s.numberOfAyahs} آية</div></div>
+    </div>`).join('');
+  document.querySelectorAll('.surah').forEach(el => el.onclick = () => openSurah(+el.dataset.n));
+}
+document.getElementById('search').oninput = (e) => {
+  const q = e.target.value.trim();
+  renderSurahs(surahs.filter(s => s.name.includes(q) || s.englishName.toLowerCase().includes(q.toLowerCase())));
+};
+
+async function openSurah(n) {
+  document.getElementById('surah-view').style.display = 'none';
+  document.getElementById('ayah-view').style.display = 'block';
+  document.getElementById('ayahs').innerHTML = '<div class="loading-row"><span class="spinner"></span> جارٍ التحميل…</div>';
+  try {
+    const data = await API.get('/api/surah/' + n);
+    document.getElementById('surah-title').textContent = data.name;
+    document.getElementById('ayahs').innerHTML = data.ayahs.map(a => `
+      <div class="ayah" data-ref="${n}:${a.numberInSurah}">
+        <span class="badge">${a.numberInSurah}</span>
+        <span class="txt">${a.text}</span>
+      </div>`).join('');
+    document.querySelectorAll('.ayah').forEach(el => el.onclick = () => {
+      location.href = '/studio?ref=' + encodeURIComponent(el.dataset.ref);
+    });
+  } catch (e) { toast('تعذّر تحميل السورة', 'err'); }
+}
+document.getElementById('back').onclick = () => {
+  document.getElementById('ayah-view').style.display = 'none';
+  document.getElementById('surah-view').style.display = 'block';
+};
+
+init().catch(() => toast('تعذّر التحميل', 'err'));
+</script>
+{% endblock %}

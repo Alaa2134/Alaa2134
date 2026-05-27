@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block heading %}الإعدادات{% endblock %}
+{% block subheading %}تحكم كامل في طريقة اختيار المحتوى ونص الكابشن وشكل الفيديو{% endblock %}
+{% block content %}
+<div class="grid cols-2">
+  <div class="card">
+    <h3>اختيار المحتوى</h3>
+    <label class="field">
+      <span>وضع اختيار الآيات</span>
+      <select id="selection_mode">
+        <option value="sequential">بالترتيب — حسب قائمة الآيات</option>
+        <option value="random">عشوائي</option>
+      </select>
+    </label>
+    <label class="field">
+      <span>الخلفية الافتراضية</span>
+      <select id="background_mode">
+        <option value="gradient">تدرّج لوني هادئ</option>
+        <option value="video">فيديو طبيعة (إن وُجد)</option>
+      </select>
+    </label>
+    <label class="field">
+      <span>ثانية الصمت بعد التلاوة</span>
+      <input id="tail_seconds" type="number" step="0.5" min="0" max="5">
+    </label>
+  </div>
+
+  <div class="card">
+    <h3>الكابشن</h3>
+    <label class="field">
+      <span>الهاشتاجات / نص إضافي</span>
+      <textarea id="hashtags"></textarea>
+    </label>
+    <p class="muted">يُضاف نص الآية واسمها ورقمها تلقائياً قبل هذا النص.</p>
+  </div>
+</div>
+
+<div class="card" style="margin-top:18px">
+  <h3>الجدولة والأتمتة</h3>
+  <p class="muted">النشر اليومي يعمل عبر GitHub Actions. لتغيير الموعد، عدّل قيمة
+    <code>cron</code> في الملف <code>.github/workflows/daily.yml</code> ثم ادفع التغيير إلى الفرع الافتراضي.</p>
+</div>
+
+<div class="btn-row" style="margin-top:18px">
+  <button class="btn btn-gold" id="save">حفظ الإعدادات</button>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function init() {
+  const s = await API.get('/api/settings');
+  document.getElementById('selection_mode').value = s.selection_mode;
+  document.getElementById('background_mode').value = s.background_mode;
+  document.getElementById('tail_seconds').value = s.tail_seconds;
+  document.getElementById('hashtags').value = s.hashtags;
+}
+document.getElementById('save').onclick = async () => {
+  try {
+    await API.post('/api/settings', {
+      selection_mode: document.getElementById('selection_mode').value,
+      background_mode: document.getElementById('background_mode').value,
+      tail_seconds: parseFloat(document.getElementById('tail_seconds').value) || 1.5,
+      hashtags: document.getElementById('hashtags').value,
+    });
+    toast('تم حفظ الإعدادات ✓', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+};
+init().catch(() => toast('تعذّر التحميل', 'err'));
+</script>
+{% endblock %}

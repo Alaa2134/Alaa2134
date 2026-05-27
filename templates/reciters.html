@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block heading %}القرّاء{% endblock %}
+{% block subheading %}اختر القرّاء المفضّلين وطريقة استخدام أصواتهم في الريلز{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom:18px">
+  <div class="grid cols-2">
+    <label class="field">
+      <span>وضع اختيار القارئ</span>
+      <select id="reciter-mode">
+        <option value="rotate">تدوير — قارئ مختلف كل يوم</option>
+        <option value="random">عشوائي — قارئ عشوائي كل مرة</option>
+        <option value="fixed">ثابت — قارئ واحد دائماً</option>
+      </select>
+    </label>
+    <label class="field" id="fixed-wrap" style="display:none">
+      <span>القارئ الثابت</span>
+      <select id="fixed-reciter"></select>
+    </label>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-gold" id="save">حفظ</button>
+    <button class="btn btn-ghost" id="select-all">تحديد الكل</button>
+    <button class="btn btn-ghost" id="clear-all">إلغاء التحديد</button>
+    <span class="muted" id="count" style="align-self:center"></span>
+  </div>
+</div>
+<div class="grid cols-3" id="reciters"></div>
+{% endblock %}
+{% block scripts %}
+<script>
+let reciters = [], settings = {}, pool = new Set();
+
+function renderPool() {
+  document.getElementById('count').textContent = `${pool.size} قارئ مفعّل`;
+  document.querySelectorAll('.reciter').forEach(el => {
+    el.classList.toggle('selected', pool.has(el.dataset.id));
+  });
+}
+
+async function init() {
+  [reciters, settings] = await Promise.all([API.get('/api/reciters'), API.get('/api/settings')]);
+  pool = new Set(settings.reciter_pool || []);
+  document.getElementById('reciter-mode').value = settings.reciter_mode || 'rotate';
+
+  const fixed = document.getElementById('fixed-reciter');
+  fixed.innerHTML = reciters.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+  fixed.value = settings.reciter || reciters[0].id;
+  toggleFixed();
+
+  const wrap = document.getElementById('reciters');
+  wrap.innerHTML = reciters.map((r, i) => `
+    <div class="reciter" data-id="${r.id}">
+      <div class="avatar">${reciterIcon(i)}</div>
+      <div class="meta"><b>${r.name}</b><small>${r.english}</small></div>
+      <div class="check">✓</div>
+    </div>`).join('');
+  wrap.querySelectorAll('.reciter').forEach(el => el.onclick = () => {
+    const id = el.dataset.id;
+    pool.has(id) ? pool.delete(id) : pool.add(id);
+    renderPool();
+  });
+  renderPool();
+}
+
+function toggleFixed() {
+  document.getElementById('fixed-wrap').style.display =
+    document.getElementById('reciter-mode').value === 'fixed' ? 'block' : 'none';
+}
+document.getElementById('reciter-mode').onchange = toggleFixed;
+document.getElementById('select-all').onclick = () => { reciters.forEach(r => pool.add(r.id)); renderPool(); };
+document.getElementById('clear-all').onclick = () => { pool.clear(); renderPool(); };
+
+document.getElementById('save').onclick = async () => {
+  if (pool.size === 0) return toast('اختر قارئاً واحداً على الأقل', 'err');
+  try {
+    await API.post('/api/settings', {
+      reciter_mode: document.getElementById('reciter-mode').value,
+      reciter: document.getElementById('fixed-reciter').value,
+      reciter_pool: [...pool],
+    });
+    toast('تم الحفظ ✓', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+};
+
+init().catch(e => toast('تعذّر التحميل', 'err'));
+</script>
+{% endblock %}

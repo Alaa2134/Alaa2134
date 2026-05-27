@@ -63,6 +63,33 @@ Actions بتشتغل فقط من الفرع الافتراضي.
 - **قائمة الآيات**: عدّل `data/verses.json` (مراجع `سورة:آية`).
 - **الخلفيات**: ضع فيديوهات 9:16 في `assets/backgrounds/` (اختياري).
 
+## لوحة التحكم (Dashboard)
+
+موقع تحكم كامل بـ Flask فيه: لوحة إحصائيات، اختيار من **١٧ قارئاً**، تصفّح
+المصحف كاملاً (١١٤ سورة)، استوديو لتوليد ومعاينة الريلز ونشرها فوراً، معرض
+لكل الريلز، وصفحة إعدادات.
+
+```bash
+pip install -r requirements.txt
+python app.py        # ثم افتح http://127.0.0.1:5000
+```
+
+الإعدادات تُحفظ في `data/settings.json` ويقرأها كلٌّ من اللوحة ومهمة النشر
+اليومية، فأي تغيير من اللوحة (بعد عمل commit للملف) ينعكس على الأتمتة.
+
+> **ملاحظة مهمة:** لوحة التحكم تطبيق Python ديناميكي (يولّد فيديو وينشر)، فلا
+> يمكن تشغيلها على **GitHub Pages** (الذي يستضيف ملفات ثابتة فقط). شغّلها محلياً
+> أو على استضافة تدعم Python (Render / Railway / VPS). النشر اليومي التلقائي
+> يعمل أصلاً على GitHub Actions بدون أي سيرفر.
+
+## GitHub Pages (واجهة العرض)
+
+يوجد موقع ثابت في مجلد `docs/` (صفحة تعريفية + متصفّح حيّ للمصحف والقرّاء
+يعمل من المتصفح مباشرةً). يُنشر تلقائياً عبر `.github/workflows/pages.yml`.
+
+لتفعيله: **Settings → Pages → Source: GitHub Actions**. الرابط غالباً:
+`https://alaa2134.github.io/Alaa2134/`.
+
 ## تجربة محلية
 
 ```bash
@@ -79,19 +106,28 @@ DRY_RUN=true VERSE_REFERENCE=2:255 python main.py
 ## هيكل المشروع
 
 ```
-main.py                      # المنسّق الرئيسي للـ pipeline
+main.py                      # المنسّق الرئيسي للنشر اليومي
+app.py                       # موقع لوحة التحكم (Flask)
 src/
-  config.py                  # الإعدادات من متغيرات البيئة
+  config.py                  # المسارات وأسرار البيئة
+  settings.py                # إعدادات قابلة للتعديل (data/settings.json)
   quran.py                   # جلب نص الآية + صوت التلاوة
-  render.py                  # رسم النص العربي + الخلفية (Pillow)
+  render.py                  # رسم النص العربي + الخلفية (Pillow/raqm)
   video.py                   # دمج الفيديو (ffmpeg)
+  pipeline.py                # خط التوليد المشترك (يستخدمه main و app)
   publisher.py               # رفع GitHub Release + نشر Instagram Graph API
-  state.py                   # اختيار الآية + تتبّع المنشور
+  state.py                   # اختيار الآية والقارئ + تتبّع المنشور
   caption.py                 # بناء الكابشن
+templates/ , static/         # واجهة لوحة التحكم
+docs/index.html              # موقع GitHub Pages الثابت
 data/verses.json             # قائمة الآيات المنسّقة
+data/reciters.json           # قائمة الـ17 قارئاً
+data/surahs.json             # بيانات الـ114 سورة
+data/settings.json           # إعدادات اللوحة (تتحدّث)
 data/state.json              # حالة النشر (تتحدّث تلقائياً)
 assets/backgrounds/          # فيديوهات الخلفية (اختياري)
-.github/workflows/daily.yml  # الجدولة اليومية
+.github/workflows/daily.yml  # الجدولة اليومية للنشر
+.github/workflows/pages.yml  # نشر موقع GitHub Pages
 ```
 
 ## ملاحظات

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block heading %}الاستوديو{% endblock %}
+{% block subheading %}ولّد ريلاً لأي آية بأي قارئ، عاينه، وانشره على إنستجرام{% endblock %}
+{% block content %}
+<div class="grid cols-2">
+  <div class="card">
+    <h3>إعداد الريل</h3>
+    <label class="field">
+      <span>مرجع الآية (سورة:آية)</span>
+      <input id="ref" placeholder="مثال: 2:255" value="2:255">
+    </label>
+    <label class="field">
+      <span>القارئ</span>
+      <select id="reciter"></select>
+    </label>
+    <label class="field">
+      <span>الخلفية</span>
+      <select id="bg">
+        <option value="gradient">تدرّج لوني هادئ</option>
+        <option value="video">فيديو طبيعة (إن وُجد)</option>
+      </select>
+    </label>
+    <div class="btn-row">
+      <button class="btn btn-gold" id="gen"><span id="gen-label">توليد ومعاينة</span></button>
+      <button class="btn" id="publish" disabled>نشر على إنستجرام</button>
+    </div>
+    <p class="muted" id="verse-info" style="margin-top:14px"></p>
+  </div>
+
+  <div class="card">
+    <h3>المعاينة</h3>
+    <div class="preview" id="preview">
+      <div class="placeholder">اضغط «توليد ومعاينة» لعرض الريل هنا</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let lastResult = null;
+
+async function init() {
+  const reciters = await API.get('/api/reciters');
+  document.getElementById('reciter').innerHTML = reciters.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+  const ref = new URLSearchParams(location.search).get('ref');
+  if (ref) document.getElementById('ref').value = ref;
+}
+
+document.getElementById('gen').onclick = async () => {
+  const btn = document.getElementById('gen');
+  const label = document.getElementById('gen-label');
+  btn.disabled = true; label.innerHTML = '<span class="spinner"></span> جارٍ التوليد…';
+  document.getElementById('publish').disabled = true;
+  try {
+    const res = await API.post('/api/generate', {
+      reference: document.getElementById('ref').value.trim(),
+      reciter: document.getElementById('reciter').value,
+      background_mode: document.getElementById('bg').value,
+    });
+    lastResult = res;
+    document.getElementById('preview').innerHTML =
+      `<video src="${res.url}" controls autoplay muted loop playsinline></video>`;
+    const v = res.verse;
+    document.getElementById('verse-info').textContent =
+      `${v.surah_name} • آية ${v.ayah_number} • بصوت ${res.reciter_name}`;
+    document.getElementById('publish').disabled = false;
+    toast('تم توليد الريل ✓', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+  finally { btn.disabled = false; label.textContent = 'توليد ومعاينة'; }
+};
+
+document.getElementById('publish').onclick = async () => {
+  if (!lastResult) return;
+  const btn = document.getElementById('publish');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> جارٍ النشر…';
+  try {
+    const res = await API.post('/api/publish', { filename: lastResult.filename, verse: lastResult.verse });
+    toast('تم النشر على إنستجرام ✓ (#' + res.media_id + ')', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+  finally { btn.disabled = false; btn.textContent = 'نشر على إنستجرام'; }
+};
+
+init().catch(() => toast('تعذّر التحميل', 'err'));
+</script>
+{% endblock %}

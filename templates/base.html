@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>منصة ريلز القرآن{% block title %}{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">۞</div>
+        <div class="brand-text">
+          <strong>ريلز القرآن</strong>
+          <span>منصة النشر التلقائي</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="/" class="nav-item {{ 'active' if active=='dashboard' }}"><span class="ic">▣</span> لوحة التحكم</a>
+        <a href="/studio" class="nav-item {{ 'active' if active=='studio' }}"><span class="ic">✦</span> الاستوديو</a>
+        <a href="/reciters" class="nav-item {{ 'active' if active=='reciters' }}"><span class="ic">♪</span> القرّاء</a>
+        <a href="/quran" class="nav-item {{ 'active' if active=='quran' }}"><span class="ic">❖</span> المصحف</a>
+        <a href="/gallery" class="nav-item {{ 'active' if active=='gallery' }}"><span class="ic">▤</span> المعرض</a>
+        <a href="/settings" class="nav-item {{ 'active' if active=='settings' }}"><span class="ic">⚙</span> الإعدادات</a>
+      </nav>
+      <div class="sidebar-foot">
+        <span id="ig-status" class="pill pill-muted">جارٍ التحميل…</span>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <h1>{% block heading %}{% endblock %}</h1>
+        <p class="sub">{% block subheading %}{% endblock %}</p>
+      </header>
+      <div class="page">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

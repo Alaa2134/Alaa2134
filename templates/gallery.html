@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block heading %}المعرض{% endblock %}
+{% block subheading %}كل الريلز التي تم توليدها على هذا الجهاز{% endblock %}
+{% block content %}
+<div id="gallery"><div class="loading-row"><span class="spinner"></span> جارٍ التحميل…</div></div>
+{% endblock %}
+{% block scripts %}
+<script>
+function fmtSize(b) { return (b / 1048576).toFixed(1) + ' MB'; }
+function fmtDate(t) { return new Date(t * 1000).toLocaleString('ar'); }
+
+(async () => {
+  try {
+    const items = await API.get('/api/gallery');
+    const el = document.getElementById('gallery');
+    if (!items.length) { el.innerHTML = '<p class="muted">لا توجد ريلز بعد. ولّد واحداً من الاستوديو.</p>'; return; }
+    el.className = 'gallery-grid';
+    el.innerHTML = items.map(it => `
+      <div class="gallery-item">
+        <video src="${it.url}" controls muted loop playsinline preload="metadata"></video>
+        <div class="gi-foot">${fmtSize(it.size)} • ${fmtDate(it.mtime)}</div>
+      </div>`).join('');
+  } catch (e) { toast('تعذّر تحميل المعرض', 'err'); }
+})();
+</script>
+{% endblock %}

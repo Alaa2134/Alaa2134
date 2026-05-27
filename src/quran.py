@@ -4,13 +4,14 @@ import requests
 from . import config
 
 
-def get_verse(reference: str) -> dict:
+def get_verse(reference: str, edition: str | None = None) -> dict:
     """Return verse text + audio for a reference like "2:255".
 
     A single call to an audio edition returns the Arabic text, a CDN audio
     URL, and surah metadata.
     """
-    url = f"{config.API_BASE}/ayah/{reference}/{config.AUDIO_EDITION}"
+    edition = edition or config.AUDIO_EDITION
+    url = f"{config.API_BASE}/ayah/{reference}/{edition}"
     resp = requests.get(url, timeout=30)
     resp.raise_for_status()
     data = resp.json()["data"]
@@ -21,7 +22,7 @@ def get_verse(reference: str) -> dict:
         if secondary:
             audio_url = secondary[0]
     if not audio_url:
-        raise ValueError(f"No audio URL returned for {reference} ({config.AUDIO_EDITION})")
+        raise ValueError(f"No audio URL returned for {reference} ({edition})")
 
     surah = data["surah"]
     return {

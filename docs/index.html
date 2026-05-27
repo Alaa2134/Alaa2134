@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>منصة ريلز القرآن — نشر تلقائي على إنستجرام</title>
+<meta name="description" content="منصة تولّد ريلز قرآن يومياً وتنشرها تلقائياً على إنستجرام عبر Graph API الرسمي و GitHub Actions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#04150f;--bg2:#0a2e22;--panel:rgba(255,255,255,.04);--border:rgba(212,175,95,.22);--gold:#d4af5f;--gold2:#e7cf9b;--text:#eef3ef;--muted:#9db5a8;--green:#1f7a54;--radius:16px;--shadow:0 10px 30px rgba(0,0,0,.35)}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Cairo",system-ui,Tahoma,sans-serif;color:var(--text);background:radial-gradient(1200px 600px at 85% -10%,rgba(31,122,84,.25),transparent),linear-gradient(160deg,var(--bg2),var(--bg) 60%);min-height:100vh}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1100px;margin:0 auto;padding:26px 20px}
+header.hero{text-align:center;padding:48px 16px 26px}
+.mark{width:74px;height:74px;margin:0 auto 16px;display:grid;place-items:center;font-size:42px;color:var(--bg);background:linear-gradient(145deg,var(--gold),var(--gold2));border-radius:20px;box-shadow:var(--shadow)}
+.hero h1{font-size:34px;margin:6px 0 10px;font-weight:800}
+.hero p{color:var(--muted);font-size:17px;max-width:680px;margin:0 auto 18px;line-height:1.8}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:12px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-weight:700;font-family:inherit;font-size:15px;cursor:pointer}
+.btn-gold{background:linear-gradient(145deg,var(--gold),var(--gold2));color:#1a1205;border:none}
+.features{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:34px 0}
+@media(max-width:880px){.features{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.features{grid-template-columns:1fr}}
+.feature{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.feature .ic{font-size:24px;color:var(--gold)}
+.feature h3{margin:10px 0 6px;font-size:16px}
+.feature p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:22px}
+.card h2{margin:0 0 6px;font-size:22px}
+.card .hint{color:var(--muted);margin:0 0 18px;font-size:14px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+select,input{padding:11px 13px;border-radius:11px;background:rgba(0,0,0,.25);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:14px}
+select:focus,input:focus{outline:none;border-color:var(--gold)}
+.surahs{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:18px}
+.surah{display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid var(--border);border-radius:12px;background:var(--panel);cursor:pointer;transition:.15s}
+.surah:hover{border-color:var(--gold)}
+.surah .num{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:rgba(212,175,95,.14);color:var(--gold);font-weight:700;flex:0 0 32px}
+.surah .nm{font-family:"Amiri",serif;font-size:19px}
+.surah .en{color:var(--muted);font-size:12px}
+.ayah{display:flex;gap:12px;align-items:center;padding:13px 15px;border:1px solid var(--border);border-radius:12px;background:var(--panel);margin-bottom:9px}
+.ayah .badge{flex:0 0 auto;background:rgba(212,175,95,.16);color:var(--gold);border-radius:8px;padding:3px 9px;font-size:12px;font-weight:700}
+.ayah .txt{font-family:"Amiri",serif;font-size:23px;line-height:2;flex:1}
+.play{flex:0 0 auto;width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--panel);color:var(--gold);cursor:pointer;font-size:15px}
+.play:hover{border-color:var(--gold)}
+.muted{color:var(--muted)}
+.spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.back{cursor:pointer}
+footer{text-align:center;color:var(--muted);padding:30px 16px;font-size:13px;line-height:1.9}
+.note{background:rgba(212,175,95,.08);border:1px dashed var(--border);border-radius:12px;padding:14px 16px;color:var(--muted);font-size:14px;line-height:1.8;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="mark">۞</div>
+    <h1>منصة ريلز القرآن</h1>
+    <p>منصة تولّد ريلز قرآن يومياً وتنشرها تلقائياً على إنستجرام عبر <b>Instagram Graph API</b> الرسمي وجدولة <b>GitHub Actions</b> المجانية — مع أكثر من ١٧ قارئاً.</p>
+    <div class="cta">
+      <a class="btn btn-gold" href="https://github.com/Alaa2134/Alaa2134" target="_blank" rel="noopener">الكود على GitHub</a>
+      <a class="btn" href="#explorer">تصفّح المصحف والقرّاء</a>
+    </div>
+  </header>
+
+  <section class="features">
+    <div class="feature"><div class="ic">✦</div><h3>توليد تلقائي</h3><p>ريل جديد كل يوم: نص الآية بخط أميري فوق خلفية هادئة مع التلاوة.</p></div>
+    <div class="feature"><div class="ic">♪</div><h3>١٧ قارئاً</h3><p>تدوير بين أصوات العفاسي والحصري والمنشاوي والسديس والمعيقلي وغيرهم.</p></div>
+    <div class="feature"><div class="ic">▣</div><h3>نشر رسمي</h3><p>عبر Instagram Graph API الرسمي — حساب آمن ومتوافق مع الشروط.</p></div>
+    <div class="feature"><div class="ic">⚙</div><h3>تحكم كامل</h3><p>لوحة تحكم لاختيار القرّاء والآيات والكابشن ومعاينة الريلز قبل النشر.</p></div>
+  </section>
+
+  <section class="card" id="explorer">
+    <h2>تصفّح المصحف والقرّاء</h2>
+    <p class="hint">اختر قارئاً ثم سورة للاستماع لآياتها — مباشرة من المتصفح.</p>
+    <div class="row">
+      <label class="muted">القارئ:</label>
+      <select id="reciter"></select>
+      <input id="search" placeholder="ابحث عن سورة…" style="flex:1;min-width:200px">
+    </div>
+    <div id="view"></div>
+  </section>
+
+  <div class="note">
+    <b>ملاحظة:</b> هذه الصفحة (على GitHub Pages) هي واجهة عرض ثابتة. أما توليد الفيديو والنشر الفعلي
+    على إنستجرام فيعملان تلقائياً عبر <b>GitHub Actions</b>، ولوحة التحكم الكاملة (Flask) تُشغَّل محلياً
+    أو على استضافة تدعم Python.
+  </div>
+
+  <footer>
+    صُنع بنية خدمة كتاب الله • التلاوات ونصوص الآيات من Al Quran Cloud API<br>
+    استخدم محتوى لديك حق نشره.
+  </footer>
+</div>
+
+<audio id="player"></audio>
+<script>
+const API="https://api.alquran.cloud/v1";
+const RECITERS=[
+ {id:"ar.alafasy",name:"مشاري العفاسي"},{id:"ar.husary",name:"محمود خليل الحصري"},
+ {id:"ar.husarymujawwad",name:"الحصري (المجوّد)"},{id:"ar.minshawi",name:"محمد صديق المنشاوي"},
+ {id:"ar.abdulsamad",name:"عبد الباسط عبد الصمد"},{id:"ar.abdurrahmaansudais",name:"عبد الرحمن السديس"},
+ {id:"ar.saoodshuraym",name:"سعود الشريم"},{id:"ar.mahermuaiqly",name:"ماهر المعيقلي"},
+ {id:"ar.ahmedajamy",name:"أحمد العجمي"},{id:"ar.shaatree",name:"أبو بكر الشاطري"},
+ {id:"ar.hudhaify",name:"علي الحذيفي"},{id:"ar.hanirifai",name:"هاني الرفاعي"},
+ {id:"ar.muhammadayyoub",name:"محمد أيوب"},{id:"ar.muhammadjibreel",name:"محمد جبريل"},
+ {id:"ar.abdullahbasfar",name:"عبد الله بصفر"},{id:"ar.ibrahimakhbar",name:"إبراهيم الأخضر"},
+ {id:"ar.aymanswoaid",name:"أيمن سويد"}
+];
+let surahs=[];
+const view=document.getElementById("view");
+const player=document.getElementById("player");
+const recSel=document.getElementById("reciter");
+recSel.innerHTML=RECITERS.map(r=>`<option value="${r.id}">${r.name}</option>`).join("");
+
+function loading(){view.innerHTML='<p class="muted" style="padding:18px"><span class="spinner"></span> جارٍ التحميل…</p>';}
+
+async function init(){
+  loading();
+  try{
+    const r=await fetch(API+"/surah");const d=await r.json();
+    surahs=d.data;renderSurahs(surahs);
+  }catch(e){view.innerHTML='<p class="muted">تعذّر التحميل، تحقق من الاتصال.</p>';}
+}
+function renderSurahs(list){
+  view.innerHTML='<div class="surahs">'+list.map(s=>`
+    <div class="surah" data-n="${s.number}">
+      <div class="num">${s.number}</div>
+      <div><div class="nm">${s.name}</div><div class="en">${s.englishName} • ${s.numberOfAyahs} آية</div></div>
+    </div>`).join("")+'</div>';
+  view.querySelectorAll(".surah").forEach(el=>el.onclick=()=>openSurah(+el.dataset.n));
+}
+document.getElementById("search").oninput=e=>{
+  const q=e.target.value.trim();
+  renderSurahs(surahs.filter(s=>s.name.includes(q)||s.englishName.toLowerCase().includes(q.toLowerCase())));
+};
+async function openSurah(n){
+  loading();
+  try{
+    const r=await fetch(`${API}/surah/${n}/${recSel.value}`);const d=await r.json();const data=d.data;
+    view.innerHTML=`<p class="back btn" style="margin:6px 0 16px;display:inline-flex">→ رجوع للسور</p>
+      <h3 style="font-family:Amiri,serif;font-size:26px;margin:0 0 14px">${data.name}</h3>`+
+      data.ayahs.map(a=>`<div class="ayah">
+        <button class="play" data-audio="${a.audio}">▶</button>
+        <span class="badge">${a.numberInSurah}</span>
+        <span class="txt">${a.text}</span></div>`).join("");
+    view.querySelector(".back").onclick=()=>renderSurahs(surahs);
+    view.querySelectorAll(".play").forEach(b=>b.onclick=()=>{player.src=b.dataset.audio;player.play();});
+  }catch(e){view.innerHTML='<p class="muted">تعذّر تحميل السورة.</p>';}
+}
+init();
+</script>
+</body>
+</html>
