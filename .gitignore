@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Local secrets
+.env
+
+# Generated media / work files
+output/
+work/
+*.mp4
+*.mov
+*.mp3
+*.wav
+
+# OS
+.DS_Store

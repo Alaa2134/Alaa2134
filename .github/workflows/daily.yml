@@ -1,0 +1,78 @@
+name: Daily Quran Reel
+
+on:
+  schedule:
+    # 06:00 UTC daily. Adjust to your timezone as needed.
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      reference:
+        description: "Specific verse, e.g. 2:255 (optional, overrides selection)"
+        required: false
+        default: ""
+      dry_run:
+        description: "Generate only, do not upload or publish"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-quran-reel
+  cancel-in-progress: false
+
+jobs:
+  reel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-hosny-amiri
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate and publish reel
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AUDIO_EDITION: ${{ vars.AUDIO_EDITION }}
+          SELECTION_MODE: ${{ vars.SELECTION_MODE }}
+          CAPTION_HASHTAGS: ${{ vars.CAPTION_HASHTAGS }}
+          VERSE_REFERENCE: ${{ github.event.inputs.reference }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: python main.py
+
+      - name: Upload reel artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reel
+          path: output/*.mp4
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Commit updated state
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/state.json
+          if git diff --cached --quiet; then
+            echo "No state changes to commit."
+          else
+            git commit -m "chore: update posting state [skip ci]"
+            git push
+          fi
